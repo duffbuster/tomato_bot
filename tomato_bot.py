@@ -53,13 +53,15 @@ for submission in subreddit.get_hot(limit=10):
 
 				# make api call
 				res = rt.search(movie[0], page_limit=1)
-
-				ratings = res[0]["ratings"]
-				year = res[0]["year"]
+				if not res:
+					REPLY = "No results found."
+				else:
+					ratings = res[0]["ratings"]
+					year = res[0]["year"]
 				
-				# spit out result
-				print "Bot replying to comment: ", comment.id
-				REPLY = movie[0]+'\n\n'+'====================\n\n'+'Year: '+str(year)+'\n\n'+'Audience Rating: '+str(ratings["audience_rating"])+'\n\n'+'Audience Score: '+str(ratings["audience_score"])+'\n\n'+'Critics Rating: '+str(ratings["critics_rating"])+'\n\n'+'Critics Score: '+str(ratings["critics_score"])+'\n\n'
+					# spit out result
+					print "Bot replying to comment: ", comment.id
+					REPLY = movie[0]+'\n\n'+'====================\n\n'+'Year: '+str(year)+'\n\n'+'Audience Rating: '+str(ratings["audience_rating"])+'\n\n'+'Audience Score: '+str(ratings["audience_score"])+'\n\n'+'Critics Rating: '+str(ratings["critics_rating"])+'\n\n'+'Critics Score: '+str(ratings["critics_score"])+'\n\n'
 
 				comment.reply(REPLY)
 				replies.append(comment.id)
