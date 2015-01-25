@@ -13,6 +13,10 @@ from rottentomatoes import RT
 #res = RT().search('Toy Story 3')
 #print res
 #exit(1)
+
+REPLY = ""
+rt = RT()
+
 if not os.path.isfile("tomato_config.txt"):
 	print "You must create the file tomato_config.txt with the pickled credentials."
 	exit(1)
@@ -33,7 +37,7 @@ print "Logged in"
 if not os.path.isfile("replies.txt"):
 	replies = []
 else:
-	print "Loading previousl reply ids"
+	print "Loading previous reply ids"
 	with open("replies.txt", "r") as f:
 		replies = f.read()
 		replies = replies.split("\n")
@@ -48,18 +52,22 @@ for submission in subreddit.get_hot(limit=10):
 	flat_comments = praw.helpers.flatten_tree(submission.comments)
 	for comment in flat_comments:
 		if comment.id not in replies:
-			print comment.body
 			if re.search("tomatometer: ", comment.body, re.IGNORECASE):
 				# get movie from comment
 				movie = re.search("tomatometer\: (.*)", comment.body, re.IGNORECASE).groups()
-				print movie
 
 				# make api call
+				res = rt.search(movie[0], page_limit=1)
 
+				ratings = res[0]["ratings"]
+				year = res[0]["year"]
+				
 				# spit out result
 				print "Bot replying to comment: ", comment.id
-				#comment.reply(REPLY)
-				#replies.append(comment.id)
+				REPLY = movie[0]+'\n\n'+'====================\n\n'+'Year: '+str(year)+'\n\n'+'Audience Rating: '+str(ratings["audience_rating"])+'\n\n'+'Audience Score: '+str(ratings["audience_score"])+'\n\n'+'Critics Rating: '+str(ratings["critics_rating"])+'\n\n'+'Critics Score: '+str(ratings["critics_score"])+'\n\n'
+
+				comment.reply(REPLY)
+				replies.append(comment.id)
 
 # Save new replies
 print "Saving reply ids to file"
