@@ -54,3 +54,5 @@ docs/_build/
 target/
 
 tomato_config.txt
+replies.txt
+var.py
