@@ -9,11 +9,6 @@ import os
 import pickle
 from rottentomatoes import RT
 
-# rottentomatoes test
-#res = RT().search('Toy Story 3')
-#print res
-#exit(1)
-
 REPLY = ""
 rt = RT()
 
