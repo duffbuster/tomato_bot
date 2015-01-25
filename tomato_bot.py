@@ -9,8 +9,8 @@ import os
 import pickle
 from rottentomatoes import RT
 
+# rottentomatoes test
 #res = RT().search('Toy Story 3')
-
 #print res
 #exit(1)
 if not os.path.isfile("tomato_config.txt"):
@@ -48,15 +48,18 @@ for submission in subreddit.get_hot(limit=10):
 	flat_comments = praw.helpers.flatten_tree(submission.comments)
 	for comment in flat_comments:
 		if comment.id not in replies:
+			print comment.body
 			if re.search("tomatometer: ", comment.body, re.IGNORECASE):
 				# get movie from comment
+				movie = re.search("tomatometer\: (.*)", comment.body, re.IGNORECASE).groups()
+				print movie
 
 				# make api call
 
 				# spit out result
 				print "Bot replying to comment: ", comment.id
 				#comment.reply(REPLY)
-				replies.append(comment.id)
+				#replies.append(comment.id)
 
 # Save new replies
 print "Saving reply ids to file"
