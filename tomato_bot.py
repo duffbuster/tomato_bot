@@ -8,6 +8,7 @@ import re
 import os
 import pickle
 from rottentomatoes import RT
+import time
 
 REPLY = ""
 rt = RT()
@@ -74,3 +75,5 @@ while 1:
 	with open("replies.txt", "w") as f:
 		for i in replies:
 			f.write(i + "\n")	
+	
+	time.sleep(300)
