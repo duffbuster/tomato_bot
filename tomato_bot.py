@@ -76,4 +76,5 @@ while 1:
 		for i in replies:
 			f.write(i + "\n")	
 	
+	print "Waiting 5 minutes..."
 	time.sleep(300)
