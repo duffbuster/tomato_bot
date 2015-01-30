@@ -27,47 +27,50 @@ r.login(user_data[0], user_data[1])
 del user_data
 
 print "Logged in"
+while 1:
+	# Check replies
+	if not os.path.isfile("replies.txt"):
+		replies = []
+	else:
+		print "Loading previous reply ids"
+		with open("replies.txt", "r") as f:
+			replies = f.read()
+			replies = replies.split("\n")
+			replies = filter(None, replies)
 
-# Check replies
-if not os.path.isfile("replies.txt"):
-	replies = []
-else:
-	print "Loading previous reply ids"
-	with open("replies.txt", "r") as f:
-		replies = f.read()
-		replies = replies.split("\n")
-		replies = filter(None, replies)
-
-# Check for new stuff to reply to
-# Just want to search comments here, don't care about posts 
-subreddit = r.get_subreddit('umw_cpsc470z')
-print "Checking for new posts"
-for submission in subreddit.get_hot(limit=10):
-	print "Checking comments"
-	flat_comments = praw.helpers.flatten_tree(submission.comments)
-	for comment in flat_comments:
-		if comment.id not in replies:
-			if re.search("tomatometer: ", comment.body, re.IGNORECASE):
-				# get movie from comment
-				movie = re.search("tomatometer\: (.*)", comment.body, re.IGNORECASE).groups()
-
-				# make api call
-				res = rt.search(movie[0], page_limit=1)
-				if not res:
-					REPLY = "No results found."
-				else:
-					ratings = res[0]["ratings"]
-					year = res[0]["year"]
+	# Check for new stuff to reply to
+	# Just want to search comments here, don't care about posts 
+	subreddit = r.get_subreddit('umw_cpsc470z')
+	print "Checking for new posts"
+	for submission in subreddit.get_hot(limit=10):
+		print "Checking comments"
+		flat_comments = praw.helpers.flatten_tree(submission.comments)
+		for comment in flat_comments:
+			if comment.id not in replies:
+				if re.search("tomatometer: ", comment.body, re.IGNORECASE):
+					# get movie from comment
+					movie = re.search("tomatometer\: (.*)", comment.body, re.IGNORECASE).groups()
+					# make api call
+					res = rt.search(movie[0], page_limit=1)
+					if not res:
+						REPLY = "No results found."
+					else:
+						ratings = res[0]["ratings"]
+						year = res[0]["year"]
 				
-					# spit out result
-					print "Bot replying to comment: ", comment.id
-					REPLY = movie[0]+'\n\n'+'====================\n\n'+'Year: '+str(year)+'\n\n'+'Audience Rating: '+str(ratings["audience_rating"])+'\n\n'+'Audience Score: '+str(ratings["audience_score"])+'\n\n'+'Critics Rating: '+str(ratings["critics_rating"])+'\n\n'+'Critics Score: '+str(ratings["critics_score"])+'\n\n'
+						# spit out result
+						print "Bot replying to comment: ", comment.id
+						REPLY = movie[0]+'\n\n'+'====================\n\n'+'Year: '+str(year)+'\n\n'+'Audience Rating: '+str(ratings["audience_rating"])+'\n\n'+'Audience Score: '+str(ratings["audience_score"])+'\n\n'+'Critics Rating: '+str(ratings["critics_rating"])+'\n\n'+'Critics Score: '+str(ratings["critics_score"])+'\n\n'
 
-				comment.reply(REPLY)
-				replies.append(comment.id)
+					try:
+						comment.reply(REPLY)
+						replies.append(comment.id)
+						break
+					except RateLimitExceeded:
+						print "Rate limit exceeded"
 
-# Save new replies
-print "Saving reply ids to file"
-with open("replies.txt", "w") as f:
-	for i in replies:
-		f.write(i + "\n")	
+	# Save new replies
+	print "Saving reply ids to file"
+	with open("replies.txt", "w") as f:
+		for i in replies:
+			f.write(i + "\n")	
